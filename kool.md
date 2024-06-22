@@ -91,7 +91,7 @@ module KOOL
   syntax Exps ::= Vals
 
  syntax KResult ::= Val
-                   | Vals
+ syntax KResult ::= Vals
 
   syntax EnvCell
   syntax ControlCell
@@ -126,8 +126,8 @@ module KOOL
                   <store color="white"> .Map </store>
                   <busy color="cyan">.Set </busy>
                   <terminated color="red"> .Set </terminated>
-                  <input color="magenta" stream="stdin"> .List </input>
-                  <output color="brown" stream="stdout"> .List </output>
+                  <input color="magenta"> .List </input>
+                  <output color="brown" > .List </output>
                   <nextLoc color="gray"> 0 </nextLoc>
 
                   <classes color="Fuchsia">        // KOOL
@@ -551,7 +551,7 @@ rule <k> class Class1 extends Class2 { S } => . ...</k>
 
 
   syntax KItem ::= "execute"
-  rule <k> execute => new Main(.Exps); </k>
+  rule <k> execute => new Main(.Vals); </k>
        <env> .Map </env>
 
   syntax KItem ::= xstackFrame(Id,Stmt,K,Map,K)
@@ -583,7 +583,10 @@ rule <k> class Class1 extends Class2 { S } => . ...</k>
   rule N...M |-> K => N |-> K (N +Int 1)...M |-> K  requires N <=Int M
 
   rule <k> read() => I ...</k> <input> ListItem(I:Int) => .List ...</input>
-  rule <k> print(V:Val, Es => Es); ...</k> <output>... .List => ListItem(V) </output>
+  rule <k> print((V:Val, Es) => Es); ...</k> <output>... .List => ListItem(V) </output>
   rule print(.Vals); => .
+  rule isKResult(_:Val) => true
+  rule isKResult(_:Vals) => true
+  rule isKResult(nothing) => true
 endmodule
 ```

@@ -17,11 +17,10 @@ module KOOL-SPEC
     imports VERIFICATION
 
 claim
- <k> 
+ <k>
     class Main {
-        method Main() {
-            var x;
-            x = 3 + 4;
+        method Main(.Ids) {
+            3 + 4;
         }
     } => .K
  </k>

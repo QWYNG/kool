@@ -2,24 +2,11 @@
 class Main {
   method Main() {
     var x = 0;
-    var t1 = spawn { 
-      for(var i=0; i<2; ++i) {
-        
-        x = x + 1;
-        
-      }
-    };
-    var t2 = spawn { 
-      for(var i=0; i<2; ++i) {
-        
-        x = x + 1;
-        
-      }
+    var id = spawn {
+      x = x + 1;
     };
 
-    join t1;
-    join t2;
-
+    join(id);
     print(x);
   }
 }
