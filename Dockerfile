@@ -1,4 +1,4 @@
-FROM runtimeverificationinc/kframework-k:ubuntu-jammy-6.0.16
+FROM runtimeverificationinc/kframework-k:ubuntu-jammy-7.1.21
 WORKDIR /work_dir
 CMD ["/bin/bash"]
 # docker build -t my-kframework-dev .

@@ -2,11 +2,8 @@
 class Main {
   method Main() {
     var x = 0;
-    var id = spawn {
-      x = x + 1;
-    };
+    x = x + 1;
 
-    join(id);
     print(x);
   }
 }

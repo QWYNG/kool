@@ -46,9 +46,9 @@ module KOOL-SYNTAX
 
   syntax Ids  ::= List{Id,","}
 
-  syntax Exps ::= List{Exp,","}          [strict, klabel(exps)]
+  syntax Exps ::= List{Exp,","}          [strict, overload(exps)]
   syntax Val
-  syntax Vals ::= List{Val,","}          [klabel(exps)]
+  syntax Vals ::= List{Val,","}          [overload(exps)]
 
   syntax Block ::= "{" "}"
                 | "{" Stmt "}"
@@ -103,7 +103,7 @@ module KOOL
 ```k
   configuration <T color="red">
                   <threads color="orange">
-                    <thread multiplicity="*" type="Set" color="yellow">
+                    <thread multiplicity="*" type="Set" color="yellow" initial="">
                       <k color="green"> $PGM:Stmt ~> execute </k>
 
                       <control color="cyan">
@@ -144,7 +144,7 @@ module KOOL
 ```k
   syntax KItem ::= "undefined"
 
-  rule <k> var X:Id; => . ...</k>
+  rule <k> var X:Id; => .K ...</k>
        <env> Env => Env[X <- L] </env>
        <store>... .Map => L |-> undefined ...</store>
        <nextLoc> L => L +Int 1 </nextLoc>
@@ -156,7 +156,7 @@ module KOOL
 
 
 ```k
-  rule <k> var X:Id[N:Int]; => . ...</k>
+  rule <k> var X:Id[N:Int]; => .K ...</k>
        <env> Env => Env[X <- L] </env>
        <store>... .Map => L |-> array(L +Int 1, N)
                           (L +Int 1) ... (L +Int N) |-> undefined ...</store>
@@ -233,7 +233,7 @@ module KOOL
   rule <k> lvalue(X:Id => loc(L)) ...</k> <env>... X |-> L:Int ...</env>
 
   rule <k> lvalue(X:Id => this . X) ...</k>  <env> Env </env>
-    when notBool(X in keys(Env))
+    requires notBool(X in keys(Env))
   context lvalue((HOLE . _)::Exp)
   rule lvalue(objectClosure(Class, ListItem(envStackFrame(Class,Env)) EStack)
               . X
@@ -241,7 +241,7 @@ module KOOL
                               X))
   rule lvalue(objectClosure(Class, (ListItem(envStackFrame(Class':Id,_)) => .List) _)
               . _X)
-    when Class =/=K Class'
+    requires Class =/=K Class'
 ```
 
 
@@ -285,7 +285,7 @@ module KOOL
 
 
 ```k
-  rule <k> popx => . ...</k>
+  rule <k> popx => .K ...</k>
        <xstack> ListItem(_) => .List ...</xstack>
 ```
 
@@ -315,19 +315,19 @@ module KOOL
 
 
 ```k
-  rule (<thread>... <k>.</k> <holds>H</holds> <id>T</id> ...</thread> => .Bag)
+  rule (<thread>... <k>.K</k> <holds>H</holds> <id>T</id> ...</thread> => .Bag)
        <busy> Busy => Busy -Set keys(H) </busy>
        <terminated>... .Set => SetItem(T) ...</terminated>
 ```
 
 ```k
-  rule <k> join T:Int; => . ...</k>
+  rule <k> join T:Int; => .K ...</k>
        <terminated>... SetItem(T) ...</terminated>
 ```
 
 
 ```k
-  rule <k> acquire V:Val; => . ...</k>
+  rule <k> acquire V:Val; => .K ...</k>
        <holds>... .Map => V |-> 0 ...</holds>
        <busy> Busy (.Set => SetItem(V)) </busy>
     requires (notBool(V in Busy))
@@ -335,24 +335,24 @@ module KOOL
 
 
 ```k
-  rule <k> acquire V; => . ...</k>
+  rule <k> acquire V; => .K ...</k>
      <holds>... V:Val |-> (N => N +Int 1) ...</holds>
 ```
 
 
 ```k
-  rule <k> release V:Val; => . ...</k>
+  rule <k> release V:Val; => .K ...</k>
        <holds>... V |-> (N => N -Int 1) ...</holds>
     requires N >Int 0
 ```
 
 ```k
-  rule <k> release V; => . ...</k> <holds>... V:Val |-> 0 => .Map ...</holds>
+  rule <k> release V; => .K ...</k> <holds>... V:Val |-> 0 => .Map ...</holds>
        <busy>... SetItem(V) => .Set ...</busy>
 ```
 ```k
-  rule <k> rendezvous V:Val; => . ...</k>
-       <k> rendezvous V; => . ...</k>
+  rule <k> rendezvous V:Val; => .K ...</k>
+       <k> rendezvous V; => .K ...</k>
 ```
 
 ```k
@@ -364,7 +364,7 @@ module KOOL
 ```k
 rule class C:Id S => class C extends Object S
 
-rule <k> class Class1 extends Class2 { S } => . ...</k>
+rule <k> class Class1 extends Class2 { S } => .K ...</k>
       <classes>... (.Bag => <classData>
                           <className> Class1 </className>
                           <baseClass> Class2 </baseClass>
@@ -397,23 +397,23 @@ rule <k> class Class1 extends Class2 { S } => . ...</k>
        <baseClass> Class1:Id </baseClass>
        <declarations> S </declarations>
 
-  rule <k> create(Object) => . ...</k>
+  rule <k> create(Object) => .K ...</k>
 
   syntax KItem ::= setCrntClass(Id)
 
-  rule <k> setCrntClass(C) => . ...</k>
+  rule <k> setCrntClass(C) => .K ...</k>
        <crntClass> _ => C </crntClass>
 
   syntax KItem ::= "addEnvLayer"
 
-  rule <k> addEnvLayer => . ...</k>
+  rule <k> addEnvLayer => .K ...</k>
        <env> Env => .Map </env>
        <crntClass> Class:Id </crntClass>
        <envStack> .List => ListItem(envStackFrame(Class, Env)) ...</envStack>
 
   syntax KItem ::= "storeObj"
 
-  rule <k> storeObj => . ...</k>
+  rule <k> storeObj => .K ...</k>
        <crntObj> <crntClass> CC </crntClass> <envStack> ES </envStack> (<location> L:Int </location> => .Bag) </crntObj>
        <store>... .Map => L |-> objectClosure(CC, ES) ...</store>
 
@@ -424,9 +424,9 @@ rule <k> class Class1 extends Class2 { S } => . ...</k>
 
 ```k
   rule <k> X:Id => this . X ...</k> <env> Env:Map </env>
-    when notBool(X in keys(Env))
+    requires notBool(X in keys(Env))
 
-  context HOLE._::Id when (HOLE =/=K super)
+  context HOLE._::Id requires (HOLE =/=K super)
 
 
   rule objectClosure(Class:Id, ListItem(envStackFrame(Class,Env)) EStack)
@@ -434,7 +434,7 @@ rule <k> class Class1 extends Class2 { S } => . ...</k>
     => lookupMember(ListItem(envStackFrame(Class,Env)) EStack, X)
   rule objectClosure(Class:Id, (ListItem(envStackFrame(Class':Id,_)) => .List) _)
        . _X:Id
-    when Class =/=K Class'
+    requires Class =/=K Class'
 
   rule <k> super . X => lookupMember(EStack, X) ...</k>
        <crntClass> Class:Id </crntClass>
@@ -442,11 +442,11 @@ rule <k> class Class1 extends Class2 { S } => . ...</k>
   rule <k> super . _X ...</k>
        <crntClass> Class </crntClass>
        <envStack> ListItem(envStackFrame(Class':Id,_)) => .List ...</envStack>
-    when Class =/=K Class'
+    requires Class =/=K Class'
 ```
 
 ```k
-  rule <k> method F:Id(Xs:Ids) S => . ...</k>
+  rule <k> method F:Id(Xs:Ids) S => .K ...</k>
        <crntClass> Class:Id </crntClass>
        <location> OL:Int </location>
        <env> Env => Env[F <- L] </env>
@@ -462,9 +462,9 @@ rule <k> class Class1 extends Class2 { S } => . ...</k>
 
   rule <k> (X:Id => this . X)(_:Exps) ...</k>
        <env> Env </env>
-    when notBool(X in keys(Env))
+    requires notBool(X in keys(Env))
 
-  context HOLE._::Id(_) when HOLE =/=K super
+  context HOLE._::Id(_) requires HOLE =/=K super
 
   rule (objectClosure(_, EStack) . X
     => lookupMember(EStack, X:Id))(_:Exps)
@@ -476,7 +476,7 @@ rule <k> class Class1 extends Class2 { S } => . ...</k>
   rule <k> (super . _X)(_:Exps) ...</k>
        <crntClass> Class </crntClass>
        <envStack> ListItem(envStackFrame(Class':Id,_)) => .List ...</envStack>
-    when Class =/=K Class'
+    requires Class =/=K Class'
 
   rule (A:Exp(B:Exps))(C:Exps) => A(B) ~> #freezerFunCall(C)
   rule (A:Exp[B:Exps])(C:Exps) => A[B] ~> #freezerFunCall(C)
@@ -508,7 +508,7 @@ rule <k> class Class1 extends Class2 { S } => . ...</k>
 
   rule lookupMember(ListItem(envStackFrame(_, Env)) Rest, X) =>
        lookupMember(Rest, X)
-    when notBool(X in keys(Env))
+    requires notBool(X in keys(Env))
 ```
 
 ```k
@@ -516,7 +516,7 @@ rule <k> class Class1 extends Class2 { S } => . ...</k>
        instanceOf C => true
 
   rule objectClosure(_, (ListItem(envStackFrame(C,_)) => .List) _)
-       instanceOf C'  when C =/=K C'
+       instanceOf C'  requires C =/=K C'
 
   rule objectClosure(_, .List) instanceOf _ => false
 ```
@@ -561,12 +561,12 @@ rule <k> class Class1 extends Class2 { S } => . ...</k>
                  | (Map,K,K)
 
 
-  rule {} => .
+  rule {} => .K
 
   rule <k> { S } => S ~> setEnv(Env) ...</k>  <env> Env </env>
 
   rule S1:Stmt S2:Stmt => S1 ~> S2
-  rule _:Val; => .
+  rule _:Val; => .K
 
   rule if ( true) S else _ => S
   rule if (false) _ else S => S
@@ -574,9 +574,9 @@ rule <k> class Class1 extends Class2 { S } => . ...</k>
   rule while (E) S => if (E) {S while(E)S}
 
   syntax KItem ::= setEnv(Map)
-  rule <k> setEnv(Env) => . ...</k>
+  rule <k> setEnv(Env) => .K ...</k>
        <env> _ => Env </env>
-  rule (setEnv(_) => .) ~> setEnv(_)
+  rule (setEnv(_) => .K) ~> setEnv(_)
 
   syntax Map ::= Int "..." Int "|->" K [function]
   rule N...M |-> _ => .Map  requires N >Int M
@@ -584,7 +584,7 @@ rule <k> class Class1 extends Class2 { S } => . ...</k>
 
   rule <k> read() => I ...</k> <input> ListItem(I:Int) => .List ...</input>
   rule <k> print((V:Val, Es) => Es); ...</k> <output>... .List => ListItem(V) </output>
-  rule print(.Vals); => .
+  rule print(.Vals); => .K
   rule isKResult(_:Val) => true
   rule isKResult(_:Vals) => true
   rule isKResult(nothing) => true
