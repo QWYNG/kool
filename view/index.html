@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>XML Processor</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid black; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .header { background-color: #4CAF50; color: white; }
+    </style>
+</head>
+<body>
+<h1>XML Processor</h1>
+<form id="krunForm">
+    <label for="filename">Filename:</label>
+    <input type="text" id="filename" name="filename" required>
+    <label for="depth">Depth:</label>
+    <input type="number" id="depth" name="depth" required>
+    <button type="submit">Run</button>
+</form>
+<div id="output"></div>
+
+<script>
+    document.getElementById('krunForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const filename = document.getElementById('filename').value;
+        const depth = document.getElementById('depth').value;
+
+        fetch('/run-krun', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ filename, depth }),
+        })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('output').innerHTML = data;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    });
+</script>
+</body>
+</html>
