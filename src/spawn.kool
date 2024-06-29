@@ -1,0 +1,13 @@
+
+class Main {
+  method Main() {
+    var x = 0;
+
+    t1 = spawn {
+        x = x + 1;
+    };
+
+    x = x + 1;
+    print(x);
+  }
+}
