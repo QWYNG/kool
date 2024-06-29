@@ -34,8 +34,10 @@ end
 def add_nodes(graph, xml_node, parent_node = nil)
   if xml_node.is_a?(REXML::Text)
     return if xml_node.value.strip.empty?
-    graph.add_nodes(xml_node.value)
-    graph.add_edges(parent_node, xml_node.value) if parent_node
+    leaf_node = graph.add_nodes(parent_node.id + ': ' + xml_node.value.strip)
+    graph.add_edges(parent_node, leaf_node) if parent_node
+    leaf_node.color = 'green'
+    leaf_node.shape = 'box'
     return
   end
   node = graph.add_nodes(xml_node.name)
