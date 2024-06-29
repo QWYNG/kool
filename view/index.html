@@ -34,7 +34,7 @@
             },
             body: JSON.stringify({ filename, depth }),
         })
-            .then(response => response.json())
+            .then(response => response.text())
             .then(data => {
                 document.getElementById('output').innerHTML = data;
             })
