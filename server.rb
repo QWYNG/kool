@@ -40,7 +40,7 @@ def add_nodes(graph, xml_node, parent_node = nil)
     leaf_node.shape = 'box'
     return
   end
-  node = graph.add_nodes(xml_node.name)
+  node = graph.add_nodes(xml_node.name + " " + xml_node.object_id.to_s)
   graph.add_edges(parent_node, node) if parent_node
 
   xml_node.children.each do |child|
