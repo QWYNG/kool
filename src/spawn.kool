@@ -3,7 +3,7 @@ class Main {
   method Main() {
     var x = 0;
 
-    t1 = spawn {
+    spawn {
         x = x + 1;
     };
 
